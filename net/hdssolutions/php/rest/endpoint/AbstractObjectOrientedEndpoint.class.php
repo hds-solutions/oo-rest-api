@@ -13,17 +13,17 @@
 
         public abstract function get(string $verb = null, array $args = [], object $data = null, bool $local = false);
 
-        public function post(string $verb = null, array $args = [], object $data = null) {
+        public function post(string $verb = null, array $args = [], object $data = null, bool $local = false) {
             // method disabled by default
             throw new Exception('Method not allowed', 400);
         }
 
-        public function put(string $verb = null, array $args = [], object $data = null) {
+        public function put(string $verb = null, array $args = [], object $data = null, bool $local = false) {
             // method disabled by default
             throw new Exception('Method not allowed', 400);
         }
 
-        public function delete(string $verb = null, array $args = [], object $data = null) {
+        public function delete(string $verb = null, array $args = [], object $data = null, bool $local = false) {
             // method disabled by default
             throw new Exception('Method not allowed', 400);
         }
