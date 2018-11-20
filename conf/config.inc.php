@@ -1,30 +1,8 @@
 <?php
-    // redirect parser
-    foreach ($_SERVER as $key => $value)
-        if (substr($key, 0, 9) == 'REDIRECT_') {
-            $_SERVER[substr($key, 9, strlen($key))] = $value;
-            unset($_SERVER[$key]);
-        }
-
-    // develop flag
-    define('DEVELOP', isset($_SERVER['DEVELOP']) && $_SERVER['DEVELOP'] === 'true'); unset($_SERVER['DEVELOP']);
-
-    // Configuracion PHP
-    error_reporting(E_ALL);
-    ini_set('display_errors', DEVELOP);
-
-    // PHP Configuration
-    date_default_timezone_set('America/Asuncion');
-    setlocale(LC_ALL, 'es-PY');
-
-    // ruta base
-    define('SERVICE_PATH', __DIR__.'/..');
-
-    // directorio para los include_ require_ en /
-    set_include_path(SERVICE_PATH);
-
     // default error handler
     function _default_error_handler($severity, $message, $file, $line, array $context = null) {
+        // reset output
+        ob_clean();
         // force JSON outout
         header('Content-Type: application/json', true);
         echo json_encode([
