@@ -10,6 +10,8 @@
 
         private $data = [];
 
+        private $time = 0;
+
         public static final function init() {
             // get singleton instance
             $api = self::getInstance();
@@ -24,12 +26,12 @@
             $this->parseData();
         }
 
+        protected function beforeExecute() {}
+
         private function execute() {
             try {
-                // parse request
-                $raw = $this->parseRequest();
-                // parse data based on method
-                $data = $this->parseData($raw->method);
+                // before
+                $this->beforeExecute();
                 // validate method
                 if (!method_exists($this, $this->raw->endpoint)) throw new Exception('No endpoint: '.$this->raw->endpoint, 404);
                 // save start time
@@ -38,6 +40,8 @@
                 $endpoint = $this->{$this->raw->endpoint}();
                 // execute method
                 $endpoint->{strtolower($this->raw->method)}($this->raw->verb, $this->raw->args, $this->data);
+                // after
+                $this->afterExecute();
             } catch (Exception $e) {
                 //
                 $this->output([
@@ -45,6 +49,27 @@
                     'error' => $e->getMessage()
                 ]);
             }
+        }
+
+        protected function afterExecute() {}
+
+        public final function __toString() {
+            // clone data
+            $request_data = clone $this->data;
+            // check if there is a password field
+            if ($this->raw->method === 'POST' && $this->raw->endpoint === 'login' && isset($request_data->pass))
+                // hide password
+                $request_data->pass = '********';
+            // return request uri
+            return
+                // METHOD/endpoint/verb
+                $this->raw->method.'/'.$this->raw->endpoint.($this->raw->verb !== null ? '/'.$this->raw->verb : '').
+                // extra args|endpoints
+                (count($this->raw->args) > 0 ? '/'.implode('/', $this->raw->args) : '').
+                // GET parameters
+                (strlen(http_build_query($this->data->get_params)) > 0 ? '?'.urldecode(http_build_query($this->data->get_params)) : '').
+                // POST|PUT data
+                (in_array($this->raw->method, [ 'POST', 'PUT' ]) ? ' '.json_encode($request_data) : '');
         }
 
         final function output($data, $local = false) {
