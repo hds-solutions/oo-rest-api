@@ -1,33 +1,43 @@
 <?php
     namespace net\hdssolutions\php\rest;
 
-    use \Exception;
+    use Exception;
 
     abstract class AbstractObjectOrientedRestAPI {
         private static $instance;
 
+        private $raw = [];
+
+        private $data = [];
+
         public static final function init() {
             // get singleton instance
             $api = self::getInstance();
-            //
+            // execute API process
             $api->execute();
         }
 
-        private function __construct() {}
+        private function __construct() {
+            // parse request
+            $this->parseRequest();
+            // parse data based on method
+            $this->parseData();
+        }
 
         private function execute() {
-            //
             try {
                 // parse request
                 $raw = $this->parseRequest();
                 // parse data based on method
                 $data = $this->parseData($raw->method);
                 // validate method
-                if (!method_exists($this, $raw->endpoint)) throw new Exception('No endpoint: '.$raw->endpoint, 404);
+                if (!method_exists($this, $this->raw->endpoint)) throw new Exception('No endpoint: '.$this->raw->endpoint, 404);
+                // save start time
+                $this->time = microtime(true);
                 // get endpoint
-                $endpoint = $this->{$raw->endpoint}();
+                $endpoint = $this->{$this->raw->endpoint}();
                 // execute method
-                $endpoint->{strtolower($raw->method)}($raw->verb, $raw->args, $data);
+                $endpoint->{strtolower($this->raw->method)}($this->raw->verb, $this->raw->args, $this->data);
             } catch (Exception $e) {
                 //
                 $this->output([
@@ -40,14 +50,16 @@
         final function output($data, $local = false) {
             // return local data
             if ($local === true) return (object)$data;
+            // get end time
+            $time = round((microtime(true) - $this->time) * 1000);
             // force JSON outout
             header('Content-Type: application/json', true);
             echo json_encode(array_merge([
-                'success'       => true,
-                'code'          => 200,
-                'error'         => null,
-                'performance'   => 0,
-                'result'        => null
+                'success'   => false,
+                'code'      => isset($data->result) && count($data->result) ? ($this->raw->method === 'POST' ? 201 : 200) : 204,
+                'error'     => null,
+                'time'      => $time,
+                'result'    => null
             ], $data));
         }
 
@@ -90,17 +102,19 @@
                     // retornamos con un error
                     throw new Exception('Unexpected Header', 400);
             }
-            //
-            return $raw;
+            // save raw data
+            $this->raw = $raw;
         }
 
-        private function parseData($method) {
-            //
-            $data = [];
-            switch ($method) {
+        private function parseData() {
+            // init data container
+            $data = [ 'get_params' => [] ];
+            switch ($this->raw->method) {
                 case 'GET':
                     // append GET data
                     $data = $this->cleanInputs($_GET);
+                    // save GET data only for toString() method
+                    $data['get_params'] = $data;
                 case 'POST':
                 case 'PUT':
                 case 'DELETE':
@@ -119,8 +133,8 @@
 
                 default: throw new Exception('Invalid Method', 405);
             }
-            //
-            return (object)$data;
+            // save data
+            $this->data = (object)$data;
         }
 
         private function cleanInputs($data) {
