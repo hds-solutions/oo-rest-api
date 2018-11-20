@@ -50,5 +50,5 @@
         // check if is a valid error
         if (error_get_last() !== null && in_array($error->type, [ E_ERROR, E_PARSE, E_COMPILE_ERROR ]))
             // redirect to error handler
-            _default_error_handler($error->type, $error->message, $error->file, $error->file);
+            _default_error_handler($error->type, $error->message, $error->file, $error->line);
     });
