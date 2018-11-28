@@ -10,6 +10,8 @@
 
         private $data = [];
 
+        private $get_params = [];
+
         private $time = 0;
 
         public static final function init() {
@@ -67,7 +69,7 @@
                 // extra args|endpoints
                 (count($this->raw->args) > 0 ? '/'.implode('/', $this->raw->args) : '').
                 // GET parameters
-                (strlen(http_build_query($this->data->get_params)) > 0 ? '?'.urldecode(http_build_query($this->data->get_params)) : '').
+                (strlen(http_build_query($this->get_params)) > 0 ? '?'.urldecode(http_build_query($this->get_params)) : '').
                 // POST|PUT data
                 (in_array($this->raw->method, [ 'POST', 'PUT' ]) ? ' '.json_encode($request_data) : '');
         }
@@ -133,13 +135,13 @@
 
         private function parseData() {
             // init data container
-            $data = [ 'get_params' => [] ];
+            $data = [];
             switch ($this->raw->method) {
                 case 'GET':
                     // append GET data
                     $data = $this->cleanInputs($_GET);
                     // save GET data only for toString() method
-                    $data['get_params'] = $data;
+                    $this->get_params = $data;
                 case 'POST':
                 case 'PUT':
                 case 'DELETE':
