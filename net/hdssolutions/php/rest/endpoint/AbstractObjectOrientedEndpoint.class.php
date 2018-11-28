@@ -5,9 +5,16 @@
     use \Exception;
 
     abstract class AbstractObjectOrientedEndpoint {
-        protected $parent;
+        // parent instance
+        private $parent;
+
+        // local instance for static calls
+        private static $instance;
 
         final function __construct(AbstractObjectOrientedRestAPI $parent) {
+            // save instance
+            self::$instance = $this;
+            // save parent
             $this->parent = $parent;
         }
 
@@ -28,8 +35,13 @@
             throw new Exception('Method not allowed', 400);
         }
 
+        protected final function parent() {
+            // return parent object
+            return $this->parent;
+        }
+
         protected final function output($data, $local = false) {
-            //
+            // redirect to parent output() method
             return $this->parent->output($data, $local);
         }
     }
