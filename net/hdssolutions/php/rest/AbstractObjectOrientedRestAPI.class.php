@@ -2,6 +2,7 @@
     namespace net\hdssolutions\php\rest;
 
     use Exception;
+    use net\hdssolutions\api\performance\Performance;
 
     abstract class AbstractObjectOrientedRestAPI {
         private static $instance;
@@ -32,12 +33,12 @@
 
         private function execute() {
             try {
+                // save start time
+                $this->time = microtime(true);
                 // before
                 $this->beforeExecute();
                 // validate method
                 if (!method_exists($this, $this->raw->endpoint)) throw new Exception('No endpoint: '.$this->raw->endpoint, 404);
-                // save start time
-                $this->time = microtime(true);
                 // get endpoint
                 $endpoint = $this->{$this->raw->endpoint}();
                 // execute method
@@ -85,7 +86,7 @@
                 'success'   => false,
                 'code'      => isset($data->result) && count($data->result) ? ($this->raw->method === 'POST' ? 201 : 200) : 204,
                 'error'     => null,
-                'time'      => $time,
+                'times'     => array_merge([ 'total' => $time ], Performance::getTimes()),
                 'result'    => null
             ], $data));
         }
