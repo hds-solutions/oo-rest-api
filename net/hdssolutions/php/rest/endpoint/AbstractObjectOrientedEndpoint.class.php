@@ -18,6 +18,19 @@
             $this->parent = $parent;
         }
 
+        public static final function __callStatic(string $endpoint, array $func_args) {
+            // parse verb
+            $verb = $func_args[0] ?? null;
+            // parse args
+            $args = $func_args[1] ?? [];
+            // parse data
+            $data = $func_args[2] ?? (object)[];
+            // parse local
+            $local = $func_args[3] ?? false;
+            // execute endpoint on parent
+            return self::$instance->parent->$endpoint($verb, $args, $data, $local);
+        }
+
         public abstract function get(string $verb = null, array $args = [], object $data = null, bool $local = false);
 
         public function post(string $verb = null, array $args = [], object $data = null, bool $local = false) {
