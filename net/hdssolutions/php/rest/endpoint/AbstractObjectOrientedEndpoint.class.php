@@ -57,4 +57,11 @@
             // redirect to parent output() method
             return $this->parent->output($data, $local);
         }
+
+        protected abstract function makeObject(object $dbdata, object $data, bool $local);
+
+        protected final function sLayer() {
+            // return parent object
+            return $this->parent->sLayer();
+        }
     }
