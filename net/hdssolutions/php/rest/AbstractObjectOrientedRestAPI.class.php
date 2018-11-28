@@ -153,6 +153,11 @@
                         $input_file = json_decode($input_file);
                         // check for double escaped JSON
                         if (gettype($input_file) === 'string') $input_file = json_decode($input_file);
+                    } else {
+                        // get fields from input
+                        parse_str($input_file, $put);
+                        // merge into data
+                        $data = array_merge($data, $put);
                     }
                     break;
 
