@@ -15,16 +15,16 @@
 
         private $time = 0;
 
-        public static final function init() {
+        public static final function init(string $version = null) {
             // get singleton instance
-            $api = self::getInstance();
+            $api = self::getInstance($version);
             // execute API process
             $api->execute();
         }
 
-        private function __construct() {
+        private function __construct($version) {
             // parse request
-            $this->parseRequest();
+            $this->parseRequest($version);
             // parse data based on method
             $this->parseData();
         }
@@ -82,6 +82,7 @@
             $time = round((microtime(true) - $this->time) * 1000);
             // force JSON outout
             header('Content-Type: application/json', true);
+            header('X-Webservice-Version: v'.$this->raw->version);
             echo json_encode(array_merge([
                 'success'   => false,
                 'code'      => isset($data->result) && count($data->result) ? ($this->raw->method === 'POST' ? 201 : 200) : 204,
@@ -91,7 +92,7 @@
             ], $data));
         }
 
-        private function parseRequest() {
+        private function parseRequest($version) {
             // validate request
             if (!isset($_GET['_api_']) || (
                 !isset($_GET['_api_']['request']) ||
@@ -106,13 +107,13 @@
             $raw->endpoint = rtrim($raw->endpoint, '/');
             // format request params (call without version)
             if ($raw->version == null && $raw->endpoint == null) {
-                // default version to v1.0
-                $raw->version = 'v1.0';
+                // default version to param version
+                $raw->version = $version;
                 // copy request value to endpoint
                 $raw->endpoint = $raw->request;
             }
             // almacenamos la version
-            $raw->version = (float)ltrim($raw->version, 'v');
+            $raw->version = (float)ltrim($version ?? $raw->version, 'v');
             // separamos el request en partes
             $raw->args = explode('/', $raw->endpoint);
             // obtenemos el primer parametro como el endpoint
@@ -197,11 +198,11 @@
             exit;
         }
 
-        private static function getInstance() {
+        private static function getInstance($version) {
             // force singleton
             if (self::$instance === null) {
                 $clazz = get_called_class();
-                self::$instance = new $clazz;
+                self::$instance = new $clazz($version);
             }
             // return API instance
             return self::$instance;
