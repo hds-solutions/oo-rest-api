@@ -1,8 +1,10 @@
 <?php
-	namespace net\hdssolutions\api;
+    namespace net\hdssolutions\api;
 
-	final class APIUtils {
-		public static $KEY_SIZE = 10;
+    use Exception;
+
+    final class APIUtils {
+        public static $KEY_SIZE = 10;
         public static final function makeUID() {
             $uid = '';
             $fields = func_get_args();
@@ -10,8 +12,8 @@
             foreach ($fields as $field)
                 // append the parameters with : between
                 $uid = strlen($uid) == 0 ?
-            			substr(md5($field         ), 0, self::$KEY_SIZE):
-            			substr(md5($field.':'.$uid), 0, self::$KEY_SIZE);
+                        substr(md5($field         ), 0, self::$KEY_SIZE):
+                        substr(md5($field.':'.$uid), 0, self::$KEY_SIZE);
             // return MD5 ID
             return $uid;
         }
@@ -23,8 +25,8 @@
             foreach ($fields as $field)
                 // append the parameters with : between
                 $fk = strlen($fk) == 0 ?
-            			'SUBSTR(MD5('.       $field             .'),1,'.self::$KEY_SIZE.')':
-            			'SUBSTR(MD5(CONCAT('.$field.',":",'.$fk.')),1,'.self::$KEY_SIZE.')';
+                        'SUBSTR(MD5('.       $field             .'),1,'.self::$KEY_SIZE.')':
+                        'SUBSTR(MD5(CONCAT('.$field.',":",'.$fk.')),1,'.self::$KEY_SIZE.')';
             // return MD5 ID
             return $fk;
         }
@@ -50,4 +52,4 @@
             // return requested version
             return (float)ltrim($_GET['_api_']['version'] ?? 'v1.0', 'v');
         }
-	}
+    }
