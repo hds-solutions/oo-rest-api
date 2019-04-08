@@ -27,6 +27,8 @@
             $data = $func_args[2] ?? (object)[];
             // parse local
             $local = $func_args[3] ?? false;
+            // validate method
+            if (!method_exists(self::$instance->parent, $endpoint)) throw new Exception('No endpoint: '.$endpoint, 404);
             // execute endpoint on parent
             return self::$instance->parent->$endpoint($verb, $args, $data, $local);
         }
