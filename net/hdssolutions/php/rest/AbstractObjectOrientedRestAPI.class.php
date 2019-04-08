@@ -29,12 +29,25 @@
             $this->parseData();
         }
 
+        private function _beforeExecute() {
+            // verificamos si es PUT o DELETE y no se especifico el verb
+            if (($this->raw->method == 'PUT' || $this->raw->method == 'DELETE') && $this->raw->verb === null /*&& !$this->allowPutDeleteWithoutVerb*/)
+                // salimos con un error
+                throw new Exception('Verb not specified', 400);
+            // verificamos si es POST y se especifico verb
+            if ($this->raw->method == 'POST' && $this->raw->verb !== null && count($this->raw->args) % 2 == 0 /*&& !$this->allowPostWithVerb*/)
+                // salimos con un error
+                throw new Exception('Verb must not be specified', 400);
+        }
+
         protected function beforeExecute() {}
 
         private function execute() {
             try {
                 // save start time
                 $this->time = microtime(true);
+                // internal before
+                $this->_beforeExecute();
                 // before
                 $this->beforeExecute();
                 // validate method
