@@ -11,7 +11,7 @@
         // local instance for static calls
         private static $instance;
 
-        final function __construct(AbstractObjectOrientedRestAPI $parent) {
+        function __construct(AbstractObjectOrientedRestAPI $parent) {
             // save instance
             self::$instance = $this;
             // save parent
@@ -48,6 +48,11 @@
         public function delete(string $verb = null, array $args = [], object $data = null, bool $local = false) {
             // method disabled by default
             throw new Exception('Method not allowed', 400);
+        }
+
+        protected final function allowPostWithVerb(array $endpoints) {
+            // redirect to parent
+            return $this->parent()->allowPostWithVerb($endpoints);
         }
 
         protected final function parent() {

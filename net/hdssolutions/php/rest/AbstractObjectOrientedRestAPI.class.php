@@ -15,6 +15,8 @@
 
         private $time = 0;
 
+        private $allowPostWithVerb = [];
+
         public static final function init(string $version = null) {
             // get singleton instance
             $api = self::getInstance($version);
@@ -35,25 +37,25 @@
                 // salimos con un error
                 throw new Exception('Verb not specified', 400);
             // verificamos si es POST y se especifico verb
-            if ($this->raw->method == 'POST' && $this->raw->verb !== null && count($this->raw->args) % 2 == 0 /*&& !$this->allowPostWithVerb*/)
+            if ($this->raw->method == 'POST' && $this->raw->verb !== null && count($this->raw->args) % 2 == 0 && !$this->allowPostWithVerb())
                 // salimos con un error
-                throw new Exception('Verb must not be specified', 400);
+                throw new Exception('Verb must not be specified '.json_encode($this->allowPostWithVerb), 400);
+            // save start time
+            $this->time = microtime(true);
         }
 
         protected function beforeExecute() {}
 
         private function execute() {
             try {
-                // save start time
-                $this->time = microtime(true);
-                // internal before
-                $this->_beforeExecute();
-                // before
-                $this->beforeExecute();
                 // validate method
                 if (!method_exists($this, $this->raw->endpoint)) throw new Exception('No endpoint: '.$this->raw->endpoint, 404);
                 // get endpoint
                 $endpoint = $this->{$this->raw->endpoint}();
+                // internal before
+                $this->_beforeExecute();
+                // before
+                $this->beforeExecute();
                 // execute method
                 $endpoint->{strtolower($this->raw->method)}($this->raw->verb, $this->raw->args, $this->data);
                 // after
@@ -86,6 +88,15 @@
                 (strlen(http_build_query($this->get_params)) > 0 ? '?'.urldecode(http_build_query($this->get_params)) : '').
                 // POST|PUT data
                 (in_array($this->raw->method, [ 'POST', 'PUT' ]) ? ' '.json_encode($request_data) : '');
+        }
+
+        final function allowPostWithVerb(array $endpoints = null) {
+            // check for validation
+            if ($endpoints === null)
+                // return true only if endpoint is enabled for POST with verb
+                return in_array(explode(' ', (string)$this)[0], $this->allowPostWithVerb);
+            // save endpoints with verb
+            $this->allowPostWithVerb = $endpoints;
         }
 
         final function output($data, $local = false) {
