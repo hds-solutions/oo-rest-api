@@ -17,6 +17,8 @@
 
         private $allowPostWithVerb = [];
 
+        private $allowPutDeleteWithoutVerb = [];
+
         public static final function init(string $version = null) {
             // get singleton instance
             $api = self::getInstance($version);
@@ -33,7 +35,7 @@
 
         private function _beforeExecute() {
             // verificamos si es PUT o DELETE y no se especifico el verb
-            if (($this->raw->method == 'PUT' || $this->raw->method == 'DELETE') && $this->raw->verb === null /*&& !$this->allowPutDeleteWithoutVerb*/)
+            if (($this->raw->method == 'PUT' || $this->raw->method == 'DELETE') && $this->raw->verb === null && !$this->allowPutDeleteWithoutVerb())
                 // salimos con un error
                 throw new Exception('Verb not specified', 400);
             // verificamos si es POST y se especifico verb
@@ -97,6 +99,15 @@
                 return in_array(explode(' ', (string)$this)[0], $this->allowPostWithVerb);
             // save endpoints with verb
             $this->allowPostWithVerb = $endpoints;
+        }
+
+        final function allowPutDeleteWithoutVerb(array $endpoints = null) {
+            // check for validation
+            if ($endpoints === null)
+                // return true only if endpoint is enabled for PUT|DELETE without verb
+                return in_array(explode(' ', (string)$this)[0], $this->allowPutDeleteWithoutVerb);
+            // save endpoints with verb
+            $this->allowPutDeleteWithoutVerb = $endpoints;
         }
 
         final function output($data, $local = false) {

@@ -55,6 +55,11 @@
             return $this->parent()->allowPostWithVerb($endpoints);
         }
 
+        protected final function allowPutDeleteWithoutVerb(array $endpoints) {
+            // redirect to parent
+            return $this->parent()->allowPutDeleteWithoutVerb($endpoints);
+        }
+
         protected final function parent() {
             // return parent object
             return $this->parent;
