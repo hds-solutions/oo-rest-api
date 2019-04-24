@@ -39,7 +39,7 @@
             // verificamos si es POST y se especifico verb
             if ($this->raw->method == 'POST' && $this->raw->verb !== null && count($this->raw->args) % 2 == 0 && !$this->allowPostWithVerb())
                 // salimos con un error
-                throw new Exception('Verb must not be specified '.json_encode($this->allowPostWithVerb), 400);
+                throw new Exception('Verb must not be specified', 400);
         }
 
         protected function beforeExecute() {}
