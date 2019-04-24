@@ -40,14 +40,14 @@
             if ($this->raw->method == 'POST' && $this->raw->verb !== null && count($this->raw->args) % 2 == 0 && !$this->allowPostWithVerb())
                 // salimos con un error
                 throw new Exception('Verb must not be specified '.json_encode($this->allowPostWithVerb), 400);
-            // save start time
-            $this->time = microtime(true);
         }
 
         protected function beforeExecute() {}
 
         private function execute() {
             try {
+                // save start time
+                $this->time = microtime(true);
                 // validate method
                 if (!method_exists($this, $this->raw->endpoint)) throw new Exception('No endpoint: '.$this->raw->endpoint, 404);
                 // get endpoint
