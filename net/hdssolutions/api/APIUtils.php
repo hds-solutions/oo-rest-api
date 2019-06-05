@@ -49,6 +49,8 @@
                 !isset($_GET['_api_']['endpoint'])))
                 //
                 throw new Exception('Bad configuration', 500);
+            // return null if not version is defined
+            if (strlen($_GET['_api_']['version']) == 0) return null;
             // return requested version
             return (float)ltrim($_GET['_api_']['version'] ?? 'v1.0', 'v');
         }
