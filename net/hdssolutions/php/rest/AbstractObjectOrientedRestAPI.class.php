@@ -31,7 +31,11 @@
             $this->parseRequest($version);
             // parse data based on method
             $this->parseData();
+            // execute custom configurations on constructor
+            $this->_construct();
         }
+
+        protected function _construct() {}
 
         private function _beforeExecute() {
             // verificamos si es PUT o DELETE y no se especifico el verb
