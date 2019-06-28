@@ -218,7 +218,7 @@
             return $clean_input;
         }
 
-        public static final function error_handler($severity, $message, $file, $line, array $context) {
+        public static final function error_handler($severity, $message, $file, $line, array $context = null) {
             // reset output
             ob_clean();
             // force JSON outout
@@ -226,7 +226,7 @@
             echo json_encode([
                 'success'   => false,
                 'code'      => $severity,
-                'error'     => "$message in $file:$line",
+                'error'     => str_replace(SERVICE_PATH, '', "$message in $file:$line"),
                 'result'    => null
             ]);
             // stop execution
