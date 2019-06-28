@@ -8,7 +8,7 @@
         echo json_encode([
             'success'   => false,
             'code'      => $severity,
-            'error'     => "$message in $file:$line",
+            'error'     => str_replace(SERVICE_PATH, '', "$message in $file:$line"),
             'result'    => null
         ]);
         // end execution
