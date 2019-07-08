@@ -28,7 +28,7 @@
             // parse local
             $local = $func_args[3] ?? false;
             // validate method
-            if (!method_exists(self::$instance->parent, $endpoint)) throw new Exception('No endpoint: '.$endpoint, 404);
+            if (!method_exists(self::$instance->parent, '__call') && !method_exists(self::$instance->parent, $endpoint)) throw new Exception('No endpoint: '.$endpoint, 404);
             // execute endpoint on parent
             return self::$instance->parent->$endpoint($verb, $args, $data, $local);
         }
