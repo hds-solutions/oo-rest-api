@@ -55,9 +55,13 @@
                 // save start time
                 $this->time = microtime(true);
                 // validate method
-                if (!method_exists($this, $this->raw->endpoint)) throw new Exception('No endpoint: '.$this->raw->endpoint, 404);
-                // get endpoint
-                $endpoint = $this->{$this->raw->endpoint}();
+                if (!method_exists($this, '__call') && !method_exists($this, $this->raw->endpoint)) throw new Exception('No endpoint: '.$this->raw->endpoint, 404);
+                // validate custom magic __call()
+                $endpoint = method_exists($this, '__call') && !method_exists($this, $this->raw->endpoint) ?
+                    // pass all data to custom __call() method
+                    $this->{$this->raw->endpoint}($this->raw->method, $this->raw->verb, $this->raw->args, $this->data) :
+                    // get endpoint
+                    $this->{$this->raw->endpoint}();
                 // internal before
                 $this->_beforeExecute();
                 // before
