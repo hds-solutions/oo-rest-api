@@ -197,9 +197,13 @@
                     // check for JSON POST data
                     if (isset($_SERVER['CONTENT_TYPE']) && $_SERVER['CONTENT_TYPE'] === 'application/json') {
                         // parse JSON
-                        $input_file = json_decode($input_file);
+                        $input_file = json_decode($input_file, true);
                         // check for double escaped JSON
-                        if (gettype($input_file) === 'string') $input_file = json_decode($input_file);
+                        if (gettype($input_file) === 'string') $input_file = json_decode($input_file, true);
+                        // validate invalid JSON
+                        if ($input_file !== null)
+                            // save JSON input into data
+                            $data = array_merge($data, $input_file);
                     } else {
                         // get fields from input
                         parse_str($input_file, $put);
