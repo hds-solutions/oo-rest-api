@@ -215,7 +215,18 @@
                 default: throw new Exception('Invalid Method', 405);
             }
             // save data
-            $this->data = (object)$data;
+            $this->data = $this->toObject($data);
+        }
+
+        private function toObject($arr) {
+            // create a new object
+            $obj = (object)[];
+            // foreach array
+            foreach ($arr as $key => $value)
+                // save value into new object
+                $obj->$key = is_array($value) ? $this->toObject($value) : $value;
+            // return converted array
+            return $obj;
         }
 
         private function cleanInputs($data) {
